@@ -406,18 +406,20 @@ data: the character's pixel data
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
-byte smiley[8] = { // FLAG HERE; Check later
+byte object[8] = { // FLAG HERE; Check later
+  B00000, // 0's mean OFF, // 1's are ON
+  B00000, // Curently, these are restricted to the individual containers for letters. Perhaps look for what makes those containers?
   B00000,
-  B10001,
+  B00100,
   B00000,
-  B00000,
-  B10001,
   B01110,
   B00000,
 };
 
+Inherently, this is still too high level. I have to control the individual pixels.
+
 void setup() {
-  lcd.createChar(0, smiley);
+  lcd.createChar(0, object);
   lcd.begin(16, 2);  
   lcd.write(byte(0));
 }
