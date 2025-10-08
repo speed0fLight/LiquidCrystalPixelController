@@ -1,5 +1,6 @@
 #######################################
-# Syntax Coloring Map For LiquidCrystal
+# Syntax Coloring Map For LiquidCrystalPixelController
+(NOT FINISHED DO NOT USE)
 #######################################
 
 #######################################

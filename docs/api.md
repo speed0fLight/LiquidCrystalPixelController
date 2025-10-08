@@ -406,7 +406,7 @@ data: the character's pixel data
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
-byte smiley[8] = {
+byte smiley[8] = { // FLAG HERE; Check later
   B00000,
   B10001,
   B00000,
