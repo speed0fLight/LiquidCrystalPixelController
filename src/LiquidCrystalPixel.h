@@ -3,6 +3,8 @@
 #ifndef LiquidCrystalPixel_h
 #define LiquidCrystalPixel_h
 
+#include <inttypes.h>
+
 // preset commands from LiquidCrystal and datasheet
 #define LCD_CLEARDISPLAY 0x01
 #define LCD_RETURNHOME 0x02
@@ -41,10 +43,26 @@
 #define LCD_5x10DOTS 0x04
 #define LCD_5x8DOTS 0x00
 
+typedef struct RenderSlot { // Holds two dimensional data for a character slot. 
+  // 8 vertical, 5 horizontal.
+  // Empty 
+  uint8_t rows[8];
+
+  RenderSlot() {
+    for (int i = 0; i < 8; i++) {
+      rows[i] = 0;
+    }
+  }
+};
+
+typedef struct RenderMatrix_16x2 {
+  RenderSlot grid[16][2];
+};
+
 class LiquidCrystalPixel {
     public:
-      void Renderer();
-}
+      void RenderMap(const RenderMatrix_16x2& map); // This takes a 16x2 map of individual character slots, each with their own custom char.
+};
 
 
 
