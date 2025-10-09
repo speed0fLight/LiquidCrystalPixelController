@@ -7,7 +7,7 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-LiquidCrystal	KEYWORD1	LiquidCrystal
+LiquidCrystalPixel	KEYWORD1	LiquidCrystalPixel
 
 #######################################
 # Methods and Functions (KEYWORD2)

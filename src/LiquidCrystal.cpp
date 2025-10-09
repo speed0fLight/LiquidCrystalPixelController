@@ -1,3 +1,6 @@
+// I started writing the LiquidCrystalPixel library seperately from the LiquidCrystal library.
+// The real code is in the "LiquidCrystalPixel" c++ files.
+
 #include "LiquidCrystal.h"
 
 #include <stdio.h>
@@ -5,6 +8,7 @@
 #include <inttypes.h>
 #include "Arduino.h"
 
+// All of this commentary is from LiquidCrystal.
 // When the display powers up, it is configured as follows:
 //
 // 1. Display clear
@@ -287,7 +291,10 @@ inline size_t LiquidCrystal::write(uint8_t value) {
 /************ low level data pushing commands **********/
 
 // write either command or data, with automatic 4/8-bit selection
+
+// Used to send command codes in 8 or 4 bit selections
 void LiquidCrystal::send(uint8_t value, uint8_t mode) {
+  // 
   digitalWrite(_rs_pin, mode);
 
   // if there is a RW pin indicated, set it low to Write

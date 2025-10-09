@@ -1,5 +1,5 @@
-#ifndef LiquidCrystal_h
-#define LiquidCrystal_h
+#ifndef LiquidCrystalPixel_h
+#define LiquidCrystalPixel_h
 
 #include <inttypes.h>
 #include "Print.h"
@@ -43,6 +43,8 @@
 #define LCD_5x8DOTS 0x00
 
 class LiquidCrystal : public Print {
+  // Make functions that start a liquidcrystal lcd normally.
+
 public:
   LiquidCrystal(uint8_t rs, uint8_t enable,
 		uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
@@ -60,6 +62,8 @@ public:
 	    uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
     
   void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
+
+  void CreateRenderer();
 
   void clear();
   void home();
