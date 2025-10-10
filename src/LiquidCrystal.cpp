@@ -271,7 +271,7 @@ void LiquidCrystal::createChar(uint8_t location, uint8_t charmap[]) {
   // Looks like this is where characters are created. Now we need to dive deeper and figure out where exactly they are written from.
 
   location &= 0x7; // we only have 8 locations 0-7
-  command(LCD_SETCGRAMADDR | (location << 3));
+  command(LCD_SETCGRAMADDR | (location << 3)); 
   for (int i=0; i<8; i++) {
     write(charmap[i]);
   }
