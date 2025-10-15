@@ -1,24 +1,13 @@
-// We will use create char constantly to make the effect of a rendering interface.
+// LiquidCrystalPixel.cpp
 
 #include "LiquidCrystalPixel.h"
-#include "LiquidCrystal.h" // Assuming this is included for LiquidCrystal class definition
+#include <LiquidCrystal.h>
 #include <string.h>
 #include <inttypes.h>
-#include "Arduino.h"
+#include <Arduino.h>
 
-LiquidCrystalPixel::LiquidCrystalPixel(uint8_t rs, uint8_t enable,
-		uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-		uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
-	init(rs, enable, d0, d1, d2, d3, d4, d5, d6, d7);
-}
-
-LiquidCrystalPixel::init(uint8_t rs, uint8_t enable,
-		uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-		uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
-	lcd = LiquidCrystal lcd(rs, enable, d0, d1, d2, d3, d4, d5, d6, d7);
-}
-
-// 1. 8-bit mode without R/W (10 pins)
+// Initializers from LiquidCrystal
+// 1. 8-bit mode without R/W (10 pins) - This was duplicated, removed the first.
 LiquidCrystalPixel::LiquidCrystalPixel(uint8_t rs, uint8_t enable,
                                        uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
                                        uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
@@ -30,62 +19,118 @@ LiquidCrystalPixel::LiquidCrystalPixel(uint8_t rs, uint8_t enable,
 LiquidCrystalPixel::LiquidCrystalPixel(uint8_t rs, uint8_t rw, uint8_t enable,
                                        uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
                                        uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
-    // 0: 8-bit mode; rw pin is used; all 8 data pins passed.
     init_internal(0, rs, rw, enable, d0, d1, d2, d3, d4, d5, d6, d7);
 }
 
 // 3. 4-bit mode with R/W (7 pins)
 LiquidCrystalPixel::LiquidCrystalPixel(uint8_t rs, uint8_t rw, uint8_t enable,
                                        uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3) {
-    // 1: 4-bit mode; rw pin is used; d4-d7 are placeholders (0).
     init_internal(1, rs, rw, enable, d0, d1, d2, d3, 0, 0, 0, 0);
 }
 
 // 4. 4-bit mode without R/W (6 pins)
 LiquidCrystalPixel::LiquidCrystalPixel(uint8_t rs, uint8_t enable,
                                        uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3) {
-    // 1: 4-bit mode; 255: No R/W pin; d4-d7 are placeholders (0).
     init_internal(1, rs, 255, enable, d0, d1, d2, d3, 0, 0, 0, 0);
 }
 
-// Free memory after class is exhausted
 LiquidCrystalPixel::~LiquidCrystalPixel() {
-    // Clean up the dynamically allocated LiquidCrystal object
     if (lcd) {
         delete lcd;
     }
 }
 
-// Internal Initialization
+
 void LiquidCrystalPixel::init_internal(uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t enable,
                                        uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
                                        uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
     
-    // Annoying, but used to create a new lcd using the library and it's 8-bit and 4-bit rules.
     if (fourbitmode == 0) {
-        // Use the 8-bit constructor (all 8 data pins)
         lcd = new LiquidCrystal(rs, rw, enable, d0, d1, d2, d3, d4, d5, d6, d7);
     } else {
-        // Use the 4-bit constructor (only d0-d3 passed)
         lcd = new LiquidCrystal(rs, rw, enable, d0, d1, d2, d3);
+    }
+    
+    // Initialize the LCD display size
+    if (lcd) {
+        lcd->begin(16, 2); 
     }
 }
 
+// Write pixles individually
 void LiquidCrystalPixel::WritePixel(int x, int y, bool STATE) {
-    // Implementation goes here
-	// Use lcd of the current class and write a pixel to the given coordinates using math.
-	// First, implement the cursor selection
-	// there are 5 pixels per slot, 16 slots. 80 pixels in total.
-	// so if we choose x = 15, then it should return slot 3.
-	int row = x / 5; // TODO: Validate the input and finish this function for now.
-	int column = y / 0; // todo lol
-	lcd->setCursor();
+    // 80 pixels wide
+    // 16 pixels high
+    if (x < 1 || x > 80 || y < 1 || y > 16 || !lcd) {
+        return; // Out of bounds or LCD not initialized
+    }
+    
+    // Slot Calculation
+    int cursorRow = (x + SLOT_WIDTH - 1) / SLOT_WIDTH; // Corrected: (x+4)/5
+    int cursorColumn = (y - 1) / SLOT_HEIGHT; 
+    
+    // Pixel Slot Calculation 0 index
+    int row = (y - 1) % SLOT_HEIGHT; 
+    
+    // index (0-4): The horizontal pixel column within the 8x5 character slot.
+    int index = (x - 1) % SLOT_WIDTH;
+    int bit_position = 4 - index;
+    BYTE& pixel_byte = map.grid[cursorRow - 1][cursorColumn].rows[row];
+
+    if (STATE == true) {
+        // Pixel turns ON
+        pixel_byte |= (1 << bit_position); 
+    } else {
+        // Pixel turns OFF
+        pixel_byte &= ~(1 << bit_position);
+    }
+    
+    // 1. Define the custom character (slot 0 is used for every update)
+    // custom char definition expects a pointer to an 8-byte array.
+    lcd->createChar(0, map.grid[cursorRow - 1][cursorColumn].rows);
+    
+    // 2. Move the cursor to the character slot
+    lcd->setCursor(cursorRow - 1, cursorColumn); // cursorRow-1 for 0-based column
+    
+    // 3. Write the custom character (ID 0)
+    lcd->write((BYTE)0);
 }
 
-void LiquidCrystalPixel::ReadPixel(int x, int y) {
-    // todo..
+bool LiquidCrystalPixel::ReadPixel(int x, int y) {
+    if (x < 1 || x > 80 || y < 1 || y > 16) {
+        return false; // Out of bounds
+    }
+
+    // Slot Calculation (1-based index)
+    int cursorRow = (x + SLOT_WIDTH - 1) / SLOT_WIDTH;
+    int cursorColumn = (y - 1) / SLOT_HEIGHT;
+
+    // Pixel-in-Slot Calculation (0-based index)
+    int row = (y - 1) % SLOT_HEIGHT;
+    int index = (x - 1) % SLOT_WIDTH;
+
+    int bit_position = 4 - index; // Bit position for the specific pixel (0-4)
+
+    // Check if the bit is set in the stored pattern
+    BYTE pixel_byte = map.grid[cursorRow - 1][cursorColumn].rows[row];
+    
+    // Check the specific bit
+    return (pixel_byte & (1 << bit_position)) != 0;
 }
 
 void LiquidCrystalPixel::RenderMap(const RenderMatrix_16x2 &map) {
-    // todo
+    // This function is meant to render the map matrix.
+    
+    for (int col = 0; col < 2; col++) { // 2 rows
+        for (int row = 0; row < 16; row++) { // 16 columns
+            // 1. Temporarily define custom character 0 with the character data
+            lcd->createChar(0, map.grid[row][col].rows);
+            
+            // 2. Set cursor to the slot position
+            lcd->setCursor(row, col);
+            
+            // 3. Write custom character 0
+            lcd->write((uint8_t)0);
+        }
+    }
 }
