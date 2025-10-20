@@ -1,8 +1,6 @@
 # Liquid Crystal Pixel Controller
 This fork is designed to incorporated custom pixel control on a mini LED display based on the Hitachi HD44780 chipset or so stated.
-STATUS: Finished 
-Progress: Currently dissecting the functions, going to figure out which ones are used for writing.
-Possible date to be done: 11/1/2025
+STATUS: Finished
 Date finished: 10/14/2025
 
 
